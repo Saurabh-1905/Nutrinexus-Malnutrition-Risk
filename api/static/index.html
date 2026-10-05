@@ -29,11 +29,11 @@
     <p class="lead">NutriNexus uses global country-year data and machine learning to identify patterns associated with child malnutrition risk.</p>
     <div class="cta"><a class="btn" href="#/predict">Explore the Model</a><a class="btn ghost" href="#how">How It Works</a></div>
   </div>
-  <div class="globe"><img src="/img/globe.png" width="474" height="474" alt="Dotted globe showing land masses as points of light, with Africa and Europe facing the viewer"></div>
+  <div class="globe" id="globe"><canvas id="globeCv" role="img" aria-label="Rotating dotted globe. Teal points mark countries present in the dataset." width="600" height="600"></canvas><img class="fb" src="/img/globe.png" width="474" height="474" alt="Dotted globe showing land masses as points of light"></div>
 </section>
 
 <section class="wrap block" id="why">
-  <figure class="photo reveal" data-slot="context.jpg"><img src="/img/context.jpg" alt="" onerror="this.remove()"><figcaption>Image slot: add a respectful photo as <code>img/context.jpg</code></figcaption></figure>
+  <figure class="photo collage reveal"><img src="/img/context.jpg" width="801" height="597" alt="Community scenes: a mother and child at a health check, farmers working in fields, and a health worker washing hands at a water point, linked by a glowing network diagram" loading="lazy"><div class="lbls" aria-hidden="true"><span style="left:51.56%;top:11.39%">Stunting</span><span style="left:79.28%;top:25.29%">Underweight</span><span style="left:16.60%;top:49.25%">Wasting</span><span style="left:86.89%;top:49.41%">Food security</span><span style="left:30.21%;top:79.73%">Economic<br>conditions</span><span style="left:73.28%;top:79.73%">Sanitation<br>access</span><span style="left:51.56%;top:90.95%">Drinking-water<br>access</span></div></figure>
   <div class="reveal">
     <p class="kicker">Why these signals matter</p>
     <h2>Child malnutrition can't be read from a single number.</h2>
@@ -92,16 +92,21 @@
 
 <section class="wrap block col" id="explore">
   <div class="reveal"><p class="kicker">Explore predictions</p><h2>Pick a country, then a year the dataset actually contains.</h2></div>
-  <div class="preview reveal" aria-hidden="true"><div class="fake">Country</div><div class="fake">Reference Year</div><div class="fake btnf">Predict Risk</div></div>
-  <p class="note">Select a country and one of the years available for that country in the dataset. Nothing is predicted until you ask.</p>
-  <div class="cta"><a class="btn" href="#/predict">Explore a Country-Year Prediction</a></div>
-</section>
+  <form class="preview reveal" id="homeForm" novalidate>
+    <div><label for="hCountry">Country</label><select id="hCountry"><option value="">Loading countries…</option></select></div>
+    <div><label for="hYear">Reference Year</label><select id="hYear" disabled><option value="">Select a country first</option></select></div>
+    <button class="btn" id="hGo" type="submit" disabled>Predict Risk</button>
+  </form>
+  <p class="msg" id="hMsg" role="alert"></p>
+  <p class="note">Select a country and one of the years available for that country in the dataset. Nothing is predicted until you press Predict Risk.</p>
+  </section>
 
-<section class="wrap block" id="impact">
-  <div class="reveal"><p class="kicker">From data to impact</p><h2>Turning complex global data into clearer signals.</h2>
-    <p>NutriNexus is an analytical exploration of how indicators relate to risk categories. It is a learning and portfolio project, not an operational or clinical tool.</p>
-    <div class="cta"><a class="btn" href="#/about">Explore NutriNexus</a></div></div>
-  <figure class="photo reveal" data-slot="impact.jpg"><img src="/img/impact.jpg" alt="" onerror="this.remove()"><figcaption>Image slot: add a different photo as <code>img/impact.jpg</code></figcaption></figure>
+<section class="impact" id="impact">
+  <img src="/img/impact.jpg" width="1600" height="718" alt="A child with a backpack looks out over green hills at sunset, with a faint glowing world map in the air" loading="lazy">
+  <div class="wrap"><div class="impact-copy reveal"><p class="kicker">From data to impact</p>
+    <h2>Turning complex global data into <em>clearer signals.</em></h2>
+    <p>NutriNexus is an analytical exploration of how population-level indicators relate to risk categories. It is a learning and portfolio project, not an operational or clinical tool.</p>
+    <div class="cta"><a class="btn" href="#/about">Explore NutriNexus →</a></div></div></div>
 </section>
 </div>
 

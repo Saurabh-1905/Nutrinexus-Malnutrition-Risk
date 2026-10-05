@@ -41,4 +41,4 @@ No notebook or raw training datasets are required for the deployed application.
 
 ## Frontend
 
-Single-page site in `api/static/` (Home, Predict, Methodology, About) with hash routing. No auth, database or build step. Country and year dropdowns are populated from `/api/countries` and `/api/years`. Optional photos: add `api/static/img/context.jpg` and `api/static/img/impact.jpg` (the slots stay as placeholders until then).
+Single-page site in `api/static/` (Home, Predict, Methodology, About) with hash routing. No auth, database or build step. Country and year dropdowns are populated from `/api/countries` and `/api/years`. Images live in `api/static/img/`. `globe-dots.json` and `world-dots.svg` were generated from Natural Earth country geometry (teal = countries in `model_dataset.csv`).

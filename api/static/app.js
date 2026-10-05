@@ -8,7 +8,9 @@ const TITLES = { home: "Child Malnutrition Risk, Global Country-Year Data", pred
 function route() {
   const h = location.hash;
   if (h && !h.startsWith("#/")) { show("home", false); return; }
-  show(h.replace("#/", "").split("?")[0] || "home", true);
+  const [pg, q] = h.replace("#/", "").split("?");
+  show(pg || "home", true);
+  if (pg === "predict" && q) fromQuery(q);
 }
 function show(page, top) {
   if (!TITLES[page]) page = "home";
@@ -104,28 +106,50 @@ const SIGNALS = [
 /* ---------- Live dataset facts from the API ---------- */
 fetch("/api/health").then((r) => r.json()).then((d) => { $("#stRecords").textContent = d.records; }).catch(() => {});
 
-/* ---------- Predict page (dataset-driven) ---------- */
+/* ---------- Country / year pickers (dataset-driven; used on Home and Predict) ---------- */
 const countrySel = $("#country"), yearSel = $("#year"), goBtn = $("#go"), msg = $("#msg");
-
-fetch("/api/countries").then((r) => { if (!r.ok) throw 0; return r.json(); }).then((d) => {
-  countrySel.innerHTML = '<option value="">Select a country</option>' + d.countries.map((c) => `<option>${esc(c)}</option>`).join("");
-  $("#stCountries").textContent = d.countries.length;
-}).catch(() => { countrySel.innerHTML = '<option value="">Could not load countries</option>'; });
-
-countrySel.addEventListener("change", async () => {
-  msg.textContent = ""; goBtn.disabled = true; yearSel.disabled = true;
-  if (!countrySel.value) { yearSel.innerHTML = '<option value="">Select a country first</option>'; return; }
-  yearSel.innerHTML = '<option value="">Loading years…</option>';
+const pickers = [
+  { c: countrySel, y: yearSel, b: goBtn, m: msg },
+  { c: $("#hCountry"), y: $("#hYear"), b: $("#hGo"), m: $("#hMsg") },
+];
+async function loadYears(p) {
+  p.m.textContent = ""; p.b.disabled = true; p.y.disabled = true;
+  if (!p.c.value) { p.y.innerHTML = '<option value="">Select a country first</option>'; return; }
+  p.y.innerHTML = '<option value="">Loading years…</option>';
   try {
-    const r = await fetch("/api/years?country=" + encodeURIComponent(countrySel.value));
+    const r = await fetch("/api/years?country=" + encodeURIComponent(p.c.value));
     if (!r.ok) throw 0;
     const { years } = await r.json();
     if (!years.length) throw 0;
-    yearSel.innerHTML = '<option value="">Select a reference year</option>' + years.slice().sort((a, b) => b - a).map((y) => `<option>${y}</option>`).join("");
-    yearSel.disabled = false;
-  } catch { yearSel.innerHTML = '<option value="">No years available</option>'; msg.textContent = "No years are available for this country in the dataset."; }
+    p.y.innerHTML = '<option value="">Select a reference year</option>' + years.slice().sort((a, b) => b - a).map((y) => `<option>${y}</option>`).join("");
+    p.y.disabled = false;
+  } catch { p.y.innerHTML = '<option value="">No years available</option>'; p.m.textContent = "No years are available for this country in the dataset."; }
+}
+pickers.forEach((p) => {
+  p.c.addEventListener("change", () => loadYears(p));
+  p.y.addEventListener("change", () => (p.b.disabled = !p.y.value));
 });
-yearSel.addEventListener("change", () => (goBtn.disabled = !yearSel.value));
+const countriesReady = fetch("/api/countries").then((r) => { if (!r.ok) throw 0; return r.json(); }).then((d) => {
+  const opts = '<option value="">Select a country</option>' + d.countries.map((c) => `<option>${esc(c)}</option>`).join("");
+  pickers.forEach((p) => (p.c.innerHTML = opts));
+  $("#stCountries").textContent = d.countries.length;
+}).catch(() => pickers.forEach((p) => (p.c.innerHTML = '<option value="">Could not load countries</option>')));
+
+/* Home form: send the chosen country-year to the Predict page, which runs the model */
+$("#homeForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const { c, y } = pickers[1];
+  if (c.value && y.value) location.hash = `#/predict?country=${encodeURIComponent(c.value)}&year=${encodeURIComponent(y.value)}`;
+});
+async function fromQuery(q) {
+  const params = new URLSearchParams(q), country = params.get("country"), year = params.get("year");
+  if (!country || !year) return;
+  await countriesReady;
+  countrySel.value = country; if (countrySel.value !== country) return;
+  await loadYears(pickers[0]);
+  yearSel.value = year; if (yearSel.value !== year) { msg.textContent = "That year is not available for this country in the dataset."; return; }
+  goBtn.disabled = false; runPredict();
+}
 
 const EXPL = {
   stunting: ["Stunting", "Growth too low for age; linked to long-term undernutrition."],
@@ -143,8 +167,8 @@ const card = (k, v) => {
   return `<div class="ind"><h4>${name}</h4><b>${val}</b>${bar}<p>${tip}</p></div>`;
 };
 
-$("#form").addEventListener("submit", async (e) => {
-  e.preventDefault(); if (goBtn.disabled) return;
+$("#form").addEventListener("submit", (e) => { e.preventDefault(); if (!goBtn.disabled) runPredict(); });
+async function runPredict() {
   msg.textContent = ""; goBtn.disabled = true; goBtn.textContent = "Running model…";
   try {
     const r = await fetch("/api/predict", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ country: countrySel.value, year: +yearSel.value }) });
@@ -153,7 +177,7 @@ $("#form").addEventListener("submit", async (e) => {
     render(d);
   } catch (err) { msg.textContent = err.message; }
   finally { goBtn.disabled = !yearSel.value; goBtn.textContent = "Predict Risk"; }
-});
+}
 
 function render(d) {
   const colors = { Low: "var(--lo)", Moderate: "var(--mo)", High: "var(--hi)" };
@@ -174,5 +198,60 @@ function render(d) {
   requestAnimationFrame(() => $$("[data-w]", R).forEach((i) => (i.style.width = i.dataset.w + "%")));
   R.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
 }
+
+/* ---------- Rotating globe: real country geometry as dots; teal = countries in the dataset ---------- */
+(async function globe() {
+  const wrap = $("#globe"), cv = $("#globeCv"), ctx = cv.getContext("2d");
+  let data; try { data = await (await fetch("/img/globe-dots.json")).json(); } catch { return; }
+  const rad = Math.PI / 180, pack = (arr) => {
+    const n = arr.length / 2, o = { n, sp: new Float32Array(n), cp: new Float32Array(n), sl: new Float32Array(n), cl: new Float32Array(n) };
+    for (let i = 0; i < n; i++) { const l = arr[2 * i] * rad, p = arr[2 * i + 1] * rad; o.sp[i] = Math.sin(p); o.cp[i] = Math.cos(p); o.sl[i] = Math.sin(l); o.cl[i] = Math.cos(l); }
+    return o;
+  };
+  const land = pack(data.a), hit = pack(data.b), tilt = 20 * rad, st = Math.sin(tilt), ct = Math.cos(tilt);
+  const dpr = Math.min(devicePixelRatio || 1, innerWidth < 820 ? 1.5 : 2);
+  let size = 0, lon0 = 15, last = 0, run = false, visible = true;
+  function fit() { size = Math.round(cv.clientWidth * dpr) || 600; cv.width = cv.height = size; }
+  function draw(t) {
+    const R = size * 0.4, c = size / 2, l0 = lon0 * rad, s0 = Math.sin(l0), c0 = Math.cos(l0);
+    ctx.clearRect(0, 0, size, size);
+    let g = ctx.createRadialGradient(c, c, R * 0.85, c, c, R * 1.22);
+    g.addColorStop(0, "rgba(94,234,212,.20)"); g.addColorStop(1, "rgba(94,234,212,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(c, c, R * 1.22, 0, 7); ctx.fill();
+    g = ctx.createRadialGradient(c - R * 0.3, c - R * 0.3, R * 0.1, c, c, R);
+    g.addColorStop(0, "rgba(20,64,76,.55)"); g.addColorStop(1, "rgba(8,24,38,.9)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(c, c, R, 0, 7); ctx.fill();
+    const pulse = reduce ? 0.5 : 0.5 + 0.5 * Math.sin(t / 900);
+    [[land, 0.8, "148,190,210", [0.12, 0.3, 0.55]], [hit, 1.25, "94,234,212", [0.45, 0.75, 1]]].forEach(([d, rs, col, al]) => {
+      const b = [[], [], []];
+      for (let i = 0; i < d.n; i++) {
+        const cd = d.cl[i] * c0 + d.sl[i] * s0, sd = d.sl[i] * c0 - d.cl[i] * s0;
+        const z = st * d.sp[i] + ct * d.cp[i] * cd; if (z <= 0.02) continue;
+        b[z < 0.3 ? 0 : z < 0.65 ? 1 : 2].push(c + R * d.cp[i] * sd, c - R * (ct * d.sp[i] - st * d.cp[i] * cd), z);
+      }
+      b.forEach((pts, k) => {
+        ctx.fillStyle = `rgba(${col},${(al[k] * (d === hit ? 0.85 + 0.15 * pulse : 1)).toFixed(2)})`; ctx.beginPath();
+        for (let i = 0; i < pts.length; i += 3) { const r = rs * dpr * (0.55 + 0.6 * pts[i + 2]); ctx.rect(pts[i] - r, pts[i + 1] - r, 2 * r, 2 * r); }
+        ctx.fill();
+      });
+    });
+    g = ctx.createRadialGradient(c, c, R * 0.94, c, c, R * 1.01);
+    g.addColorStop(0, "rgba(94,234,212,0)"); g.addColorStop(1, "rgba(94,234,212,.35)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(c, c, R * 1.01, 0, 7); ctx.fill();
+  }
+  function frame(t) {
+    if (!run) return;
+    const lim = innerWidth < 820 ? 33 : 16;
+    if (t - last >= lim) { lon0 = ((t / 1000) * 6 + scrollY * 0.05 + 15) % 360; last = t; draw(t); }
+    requestAnimationFrame(frame);
+  }
+  const go = () => { if (reduce || run || !visible || document.hidden) return; run = true; requestAnimationFrame(frame); };
+  const stop = () => { run = false; };
+  fit(); draw(0); wrap.classList.add("live");
+  addEventListener("resize", () => { fit(); draw(0); });
+  new IntersectionObserver((e) => { visible = e[0].isIntersecting; visible ? go() : stop(); }).observe(wrap);
+  document.addEventListener("visibilitychange", () => (document.hidden ? stop() : go()));
+  go();
+})();
 
 route();
