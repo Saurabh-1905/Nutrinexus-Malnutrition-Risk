@@ -142,6 +142,8 @@
   <h3>8. Future test evaluation</h3><p>Training used 227 records. The final test used 45 later records (cutoff 2018): 42 correctly classified, for 93.33% accuracy, 92.19% balanced accuracy, 92.67% macro F1 and 97.99% macro ROC-AUC. Training accuracy is 99.56%, so some overfitting is expected, and the small test set means these results carry real uncertainty.</p>
   <h3>9. Limitations</h3>
   <ul><li>The model works at country-year level. It is not an individual-child diagnosis tool and gives no medical advice.</li><li>It estimates a category for the year after the selected reference year, only for country-years in the dataset. It cannot predict arbitrary years.</li><li>Small test set (45 records) and uneven country coverage.</li><li>Labels come from the dataset's own score, so accuracy reflects agreement with that definition.</li></ul>
+  <h3>Data sources</h3>
+  <p>Context indicators (undernourishment, GDP per capita PPP, drinking-water and sanitation access) come from <strong>FAOSTAT</strong>, Food and Agriculture Organization of the United Nations. Stunting and wasting come from the <strong>Joint Child Malnutrition Estimates (JME)</strong> by UNICEF, WHO and the World Bank. Underweight comes from the <strong>WHO Global Health Observatory (GHO)</strong>. The three were combined with the FAOSTAT variables into one country-year dataset.</p>
 </section></div>
 
 <!-- ================= ABOUT ================= -->
@@ -161,7 +163,7 @@
     <nav aria-label="Footer"><h4>Explore</h4><a href="#/">Home</a><a href="#/predict">Predict</a><a href="#/methodology">Methodology</a><a href="#/about">About</a></nav>
     <div><h4>Project</h4><a href="https://github.com/Saurabh-1905/NutriNexus" target="_blank" rel="noopener">Source code on GitHub<span class="sr"> (opens in a new tab)</span> ↗</a></div>
   </div>
-  <div class="foot-base"><p>A personal B.Tech CSE (AI &amp; Data Science) project. It works at the country-year level and is not an individual diagnosis or medical advice.</p><p>© 2026 NutriNexus</p></div>
+  <div class="foot-base"><p>A personal B.Tech CSE (AI &amp; Data Science) project. It works at the country-year level and is not an individual diagnosis or medical advice.</p></div>
 </div></footer>
 <script src="/app.js"></script>
 </body></html>
