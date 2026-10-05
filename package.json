@@ -1,0 +1,13 @@
+{
+  "name": "nutrinexus-malnutrition-risk",
+  "version": "1.0.0",
+  "description": "NutriNexus: country-year child malnutrition risk analysis using global data and machine learning",
+  "private": true,
+  "scripts": {
+    "dev": "python -m uvicorn api.index:app --reload",
+    "build": "echo 'Build complete'"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^1.4.1"
+  }
+}
