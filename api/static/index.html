@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="NutriNexus: country-year child malnutrition risk analysis using global data and machine learning.">
+<title>NutriNexus | Child Malnutrition Risk, Global Country-Year Data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="nav"><div class="wrap nav-in">
+  <a class="brand" href="#/" aria-label="NutriNexus home"><span class="mark">N</span>NutriNexus</a>
+  <button class="burger" id="burger" aria-expanded="false" aria-controls="links" aria-label="Menu">☰</button>
+  <nav id="links" class="links" aria-label="Main">
+    <a href="#/" data-nav="home">Home</a><a href="#/predict" data-nav="predict">Predict</a>
+    <a href="#/methodology" data-nav="methodology">Methodology</a><a href="#/about" data-nav="about">About</a>
+  </nav>
+</div></header>
+
+<main id="main" tabindex="-1">
+<!-- ================= HOME ================= -->
+<div data-page="home">
+<section class="hero wrap">
+  <div class="hero-copy">
+    <p class="kicker">Global data · Machine learning</p>
+    <h1>Understanding Child Malnutrition Through Data &amp; Machine Learning</h1>
+    <p class="lead">NutriNexus uses global country-year data and machine learning to identify patterns associated with child malnutrition risk.</p>
+    <div class="cta"><a class="btn" href="#/predict">Explore the Model</a><a class="btn ghost" href="#how">How It Works</a></div>
+  </div>
+  <div class="globe"><img src="/img/globe.png" width="474" height="474" alt="Dotted globe showing land masses as points of light, with Africa and Europe facing the viewer"></div>
+</section>
+
+<section class="wrap block" id="why">
+  <figure class="photo reveal" data-slot="context.jpg"><img src="/img/context.jpg" alt="" onerror="this.remove()"><figcaption>Image slot: add a respectful photo as <code>img/context.jpg</code></figcaption></figure>
+  <div class="reveal">
+    <p class="kicker">Why these signals matter</p>
+    <h2>Child malnutrition can't be read from a single number.</h2>
+    <p>Growth, weight, food supply, income and basic services are interconnected. A country may look similar on one measure and very different on another, so NutriNexus looks at several population-level signals together.</p>
+    <ul class="chips"><li>Stunting</li><li>Wasting</li><li>Underweight</li><li>Food security</li><li>Economic conditions</li><li>Drinking-water access</li><li>Sanitation access</li></ul>
+  </div>
+</section>
+
+<section class="wrap block col" id="data">
+  <div class="reveal"><p class="kicker">Global data</p><h2>Country-year observations, turned into structured signals.</h2></div>
+  <div class="map reveal"><img src="/img/world-dots.svg" alt="Dot-matrix world map. Countries present in the dataset are highlighted in teal." loading="lazy"></div>
+  <p class="legend"><i class="d on"></i> Country in the dataset <i class="d"></i> Other land</p>
+  <div class="stats reveal">
+    <div><b id="stRecords" data-v="272">272</b><span>country-year records</span></div>
+    <div><b id="stCountries" data-v="59">59</b><span>countries</span></div>
+    <div><b>1988–2023</b><span>reference years covered</span></div>
+    <div><b>35</b><span>model input features</span></div>
+  </div>
+  <p class="note">Coverage varies by country: some have many years, others only one or two.</p>
+</section>
+
+<section class="wrap block col" id="signals">
+  <div class="reveal"><p class="kicker">Understanding the indicators</p><h2>Seven signals, in plain language.</h2></div>
+  <div class="tabs reveal">
+    <div class="tablist" role="tablist" aria-label="Indicators" id="tablist"></div>
+    <div class="panel" role="tabpanel" id="tabpanel" aria-live="polite"></div>
+  </div>
+  <p class="note">These indicators are population-level inputs used by the model. They do not represent an individual child's diagnosis.</p>
+</section>
+
+<section class="wrap block col" id="how">
+  <div class="reveal"><p class="kicker">How the ML model works</p><h2>From country-year rows to a risk category.</h2></div>
+  <ol class="pipe" id="pipe">
+    <li>Global country-year data</li><li>Data preparation</li><li>Feature engineering</li><li>Feature selection</li><li>Random Forest</li><li>Risk classification</li>
+  </ol>
+  <figure class="forest reveal" id="forest">
+    <svg viewBox="0 0 640 230" role="img" aria-label="Three decision trees each branching into decisions, then voting together toward Low, Moderate or High risk">
+      <g class="tree" stroke-linecap="round" fill="none"></g>
+      <g class="outs"><text x="560" y="55">LOW</text><text x="560" y="118">MODERATE</text><text x="560" y="181">HIGH</text></g>
+    </svg>
+    <figcaption>Many decision trees each vote; the forest combines their votes into one class. This is a Random Forest, not deep learning.</figcaption>
+  </figure>
+</section>
+
+<section class="wrap block col" id="perf">
+  <div class="reveal"><p class="kicker">Model performance</p><h2>Evaluated on a held-out future period.</h2></div>
+  <div class="perf reveal">
+    <div class="big"><b data-count="93.33" data-dec="2">93.33%</b><span>Future Test Accuracy</span><small>42 of 45 future test records correctly classified</small></div>
+    <dl class="metrics">
+      <div><dt>Balanced Accuracy</dt><dd>92.19%</dd></div><div><dt>Macro F1</dt><dd>92.67%</dd></div>
+      <div><dt>Macro ROC-AUC</dt><dd>97.99%</dd></div><div><dt>Time-aware CV Accuracy</dt><dd>88.89% ± 6.09%</dd></div>
+    </dl>
+  </div>
+  <p class="note">The primary risk model was evaluated on a held-out future period (after 2018), helping test how well it generalizes to later country-year observations. This is classification accuracy against the dataset's own risk labels, not a measure of medical correctness.</p>
+</section>
+
+<section class="wrap block col" id="explore">
+  <div class="reveal"><p class="kicker">Explore predictions</p><h2>Pick a country, then a year the dataset actually contains.</h2></div>
+  <div class="preview reveal" aria-hidden="true"><div class="fake">Country</div><div class="fake">Reference Year</div><div class="fake btnf">Predict Risk</div></div>
+  <p class="note">Select a country and one of the years available for that country in the dataset. Nothing is predicted until you ask.</p>
+  <div class="cta"><a class="btn" href="#/predict">Explore a Country-Year Prediction</a></div>
+</section>
+
+<section class="wrap block" id="impact">
+  <div class="reveal"><p class="kicker">From data to impact</p><h2>Turning complex global data into clearer signals.</h2>
+    <p>NutriNexus is an analytical exploration of how indicators relate to risk categories. It is a learning and portfolio project, not an operational or clinical tool.</p>
+    <div class="cta"><a class="btn" href="#/about">Explore NutriNexus</a></div></div>
+  <figure class="photo reveal" data-slot="impact.jpg"><img src="/img/impact.jpg" alt="" onerror="this.remove()"><figcaption>Image slot: add a different photo as <code>img/impact.jpg</code></figcaption></figure>
+</section>
+</div>
+
+<!-- ================= PREDICT ================= -->
+<div data-page="predict" hidden>
+<section class="wrap narrow">
+  <p class="kicker">Predict</p><h1 class="h2">Child Malnutrition Risk Prediction</h1>
+  <p class="lead">Select a country and reference year from the available dataset.</p>
+  <form id="form" class="card" novalidate>
+    <label for="country">Country</label>
+    <select id="country" required><option value="">Loading countries…</option></select>
+    <label for="year">Reference Year</label>
+    <select id="year" disabled aria-describedby="yhelp"><option value="">Select a country first</option></select>
+    <p id="yhelp" class="help">Select a year available for this country in the dataset.</p>
+    <button class="btn" id="go" type="submit" disabled>Predict Risk</button>
+    <p id="msg" class="msg" role="alert"></p>
+  </form>
+  <div id="result" hidden aria-live="polite"></div>
+</section>
+</div>
+
+<!-- ================= METHODOLOGY ================= -->
+<div data-page="methodology" hidden>
+<section class="wrap narrow prose">
+  <p class="kicker">Methodology</p><h1 class="h2">How NutriNexus works</h1>
+  <h3>1. Dataset</h3><p>A country-year table of 272 records covering 59 countries, with reference years from 1988 to 2023. It combines child anthropometric indicators (stunting, wasting, underweight) with FAOSTAT context variables such as undernourishment, GDP per capita (PPP), and basic drinking-water and sanitation access.</p>
+  <h3>2. Country-year structure</h3><p>Each row is one country in one reference year. Every row is paired with the following year, and countries differ in how many years they have, so the prediction page offers only the years each country actually has.</p>
+  <h3>3. Target definition</h3><p>The overall risk score is the average of stunting, wasting and underweight. The target is that score for the <em>following</em> year, grouped into three classes: Low, Moderate and High (92, 93 and 87 records respectively).</p>
+  <h3>4. Feature preparation</h3><p>The model receives 35 input features: current indicators, FAOSTAT context, and history-based features such as previous values, year-to-year changes and rolling averages. Missing values are filled with the median, and missingness indicators are added.</p>
+  <h3>5. Feature selection</h3><p>A selector fitted on training data only keeps the 30 most informative transformed features, so nothing from the test period influences the selection.</p>
+  <h3>6. Random Forest model</h3><p>A Random Forest of 500 trees (max depth 8) with balanced class weights. The trend model was weaker (about 57.78% test accuracy) and is not deployed here.</p>
+  <h3>7. Chronological evaluation</h3><p>Records are ordered by time, so validation always tests on later data than it trained on. Time-aware cross-validation accuracy is 88.89% ± 6.09%.</p>
+  <h3>8. Future test evaluation</h3><p>Training used 227 records. The final test used 45 later records (cutoff 2018): 42 correctly classified, for 93.33% accuracy, 92.19% balanced accuracy, 92.67% macro F1 and 97.99% macro ROC-AUC. Training accuracy is 99.56%, so some overfitting is expected, and the small test set means these results carry real uncertainty.</p>
+  <h3>9. Limitations</h3>
+  <ul><li>The model works at country-year level. It is not an individual-child diagnosis tool and gives no medical advice.</li><li>It estimates a category for the year after the selected reference year, only for country-years in the dataset. It cannot predict arbitrary years.</li><li>Small test set (45 records) and uneven country coverage.</li><li>Labels come from the dataset's own score, so accuracy reflects agreement with that definition.</li></ul>
+</section></div>
+
+<!-- ================= ABOUT ================= -->
+<div data-page="about" hidden>
+<section class="wrap narrow prose">
+  <p class="kicker">About</p><h1 class="h2">About NutriNexus</h1>
+  <p>NutriNexus is a personal B.Tech CSE (AI &amp; Data Science) project exploring how machine learning can be used to analyze global child malnutrition patterns.</p>
+  <p class="callout">This system operates at the country-year level and is not an individual-child medical diagnosis tool.</p>
+  <p>The project title is “Child Malnutrition Risk Prediction Using Global Country-Year Data and Machine Learning”. The source code is on <a href="https://github.com/Saurabh-1905/NutriNexus">GitHub</a>.</p>
+</section></div>
+</main>
+
+<footer class="wrap foot"><span>NutriNexus · Country-year analysis, not individual diagnosis</span><a href="https://github.com/Saurabh-1905/NutriNexus">GitHub</a></footer>
+<script src="/app.js"></script>
+</body></html>
