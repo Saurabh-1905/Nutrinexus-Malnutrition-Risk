@@ -76,8 +76,8 @@ The model and dataset are loaded once at startup. The static frontend is mounted
 ## Running the Project
 
 ```bash
-git clone https://github.com/Saurabh-1905/NutriNexus.git
-cd NutriNexus
+git clone https://github.com/Saurabh-1905/Nutrinexus-Malnutrition-Risk.git
+cd Nutrinexus-Malnutrition-Risk
 pip install -r requirements.txt uvicorn
 uvicorn api.index:app --reload
 ```
