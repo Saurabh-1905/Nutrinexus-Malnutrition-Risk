@@ -33,9 +33,48 @@ API health check:
 GET /api/health
 ```
 
-## Vercel
+## Deploying to Vercel
 
-Push this folder to a GitHub repository and import the repository into Vercel. Vercel recognizes `api/index.py` as the FastAPI entrypoint. The frontend is mounted by FastAPI from `api/static/`, so the API and website use the same deployment.
+NutriNexus is a single FastAPI app: `api/index.py` serves both the `/api/*` routes and the static website, so one Vercel project hosts everything. No database, environment variables or build step are needed.
+
+**How Vercel finds the app.** Vercel's Python runtime looks for an `app` object in a recognised entrypoint file (`index.py` inside `api/` is one) and installs dependencies from the root `requirements.txt`. Keep both of those as they are.
+
+### Option A: Vercel dashboard
+
+1. Push the repository to GitHub.
+2. In Vercel, choose **Add New → Project** and import the repository.
+3. Leave the build and install commands empty and the root directory as `/`. The framework should be detected as FastAPI (or "Other").
+4. Click **Deploy**.
+
+Every later push to `main` redeploys automatically, and other branches get preview URLs.
+
+### Option B: Vercel CLI
+
+```bash
+npm i -g vercel
+vercel          # preview deployment
+vercel --prod   # production deployment
+```
+
+### Check the deployment
+
+Open these on your deployed URL:
+
+| URL | Expected |
+| --- | --- |
+| `/` | The NutriNexus website |
+| `/api/health` | `{"status":"ok", ... "records":272}` |
+| `/api/countries` | A list of 59 countries |
+| `/api/years?country=Burundi` | Only the years that exist for that country |
+
+Then pick a country and year on the Predict page and confirm a result appears.
+
+### Troubleshooting
+
+- **Build or import error mentioning scikit-learn:** the model was saved with the versions pinned in `requirements.txt`. Do not change `scikit-learn`, `numpy` or `joblib` without re-saving the model.
+- **Function too large:** all Python dependencies ship in one bundle, and Vercel documents a size limit for it. Keep `requirements.txt` limited to the six packages listed and avoid adding heavy libraries.
+- **Website loads but `/api/...` returns 404:** make sure the entrypoint is still `api/index.py` and the app variable is still named `app`.
+- **Old page after a deploy:** hard-refresh the browser (Ctrl/Cmd+Shift+R) to bypass cached CSS and JavaScript.
 
 No notebook or raw training datasets are required for the deployed application.
 
