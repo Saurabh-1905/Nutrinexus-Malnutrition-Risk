@@ -115,4 +115,5 @@ NutriNexus covers the whole path from raw data to a deployed service: merging da
 ## Author
 
 **Saurabh** — B.Tech CSE (AI & Data Science)
+
 GitHub: [Saurabh-1905](https://github.com/Saurabh-1905)
